@@ -27,9 +27,38 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         initMapView()
         addAnnotationToMapView()
         setFloatingPanel()
-        
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        setCurrentCenterInMap()
         NotificationCenter.default.addObserver(
-            self, selector: #selector(self.updateLocationmanager), name: UIApplication.didBecomeActiveNotification, object: nil)
+            self,
+            selector: #selector(self.updateLocationmanager),
+            name: UIApplication.didBecomeActiveNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(moveSelectedCenter(notification:)),
+            name: NSNotification.Name(rawValue: "MoveSelectedCenter"),
+            object: nil
+        )
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIApplication.didBecomeActiveNotification,
+            object: nil
+        )
+        NotificationCenter.default.removeObserver(
+            self,
+            name: NSNotification.Name("MoveSelectedCenter"),
+            object: nil
+        )
     }
     
     // MARK: Action
@@ -40,16 +69,12 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         }
     }
     
-    func moveSelectedCenter() {
-        let center = CLLocationCoordinate2D(
-            latitude: 35.658761,
-            longitude: 139.701362
-        )
-        let origin = MKMapPoint(center)
-        let size = MKMapSize(width: 0.2, height: 0.2)
-        let rect = MKMapRect(origin: origin, size: size)
-        mapView.setVisibleMapRect(rect, animated: true)
-        print("Hit!")
+    @objc func moveSelectedCenter(notification: NSNotification) {
+        let data = notification.userInfo!["shelter"] as! Shelter
+        let span = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+        let region = MKCoordinateRegion(center: data.location.coordinate, span: span)
+        mapView.setRegion(region, animated: true)
+        floatingPanelController.move(to: .tip, animated: true)
     }
     
     func routeInAppleMapApp(targetName: String, targetLat: CLLocationDegrees, targetLon: CLLocationDegrees) {
@@ -131,12 +156,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         mapView.delegate = self
         mapView.frame = view.bounds
         mapView.showsUserLocation = true
-        
-        if let userLocation = locationManager.location?.coordinate {
-            let span = MKCoordinateSpan(latitudeDelta: 0.04, longitudeDelta: 0.04)
-            let region = MKCoordinateRegion(center: userLocation, span: span)
-            mapView.setRegion(region, animated: false)
-        }
+        setCurrentCenterInMap()
         let topView = UIVisualEffectView()
         topView.frame = CGRect(
             x: view.frame.minX,
@@ -152,13 +172,21 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         view.addSubview(mapView)
     }
     
+    private func setCurrentCenterInMap() {
+        if let userLocation = locationManager.location?.coordinate {
+            let span = MKCoordinateSpan(latitudeDelta: 0.04, longitudeDelta: 0.04)
+            let region = MKCoordinateRegion(center: userLocation, span: span)
+            mapView.setRegion(region, animated: false)
+        }
+    }
+    
     private func setFloatingPanel() {
         floatingPanelController = FloatingPanelController()
         floatingPanelController.delegate = self
         floatingPanelController.surfaceView.cornerRadius = 10.0
         floatingPanelController.set(contentViewController: semiModalController)
-        
         floatingPanelController.addPanel(toParent: self, belowView: nil, animated: true)
+        view.addSubview(floatingPanelController.view)
     }
     
     private func addAnnotation(title: String, latitude: CLLocationDegrees, longitude: CLLocationDegrees) {

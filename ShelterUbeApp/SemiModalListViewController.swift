@@ -98,8 +98,10 @@ extension SemiModalListViewController: UITableViewDelegate, UITableViewDataSourc
     // MARK: UITableViewDelegate
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let mapViewController = MapViewController()
-        mapViewController.moveSelectedCenter()
+        let selectedShelter = shelters[indexPath.row]
+        NotificationCenter.default.post(
+            Notification(name: Notification.Name("MoveSelectedCenter"), object: nil, userInfo: ["shelter": selectedShelter])
+        )
         tableView.deselectRow(at: indexPath, animated: true)
     }
     

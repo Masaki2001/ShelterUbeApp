@@ -1,0 +1,29 @@
+PODS:
+  - FloatingPanel (1.7.4)
+  - IoniconsSwift (2.1.4)
+
+DEPENDENCIES:
+  - FloatingPanel
+  - IoniconsSwift (from `http://github.com/tidwall/IoniconsSwift.git`, branch `master`)
+
+SPEC REPOS:
+  trunk:
+    - FloatingPanel
+
+EXTERNAL SOURCES:
+  IoniconsSwift:
+    :branch: master
+    :git: http://github.com/tidwall/IoniconsSwift.git
+
+CHECKOUT OPTIONS:
+  IoniconsSwift:
+    :commit: 123167c29929216fd2071aed4763b1171f983323
+    :git: http://github.com/tidwall/IoniconsSwift.git
+
+SPEC CHECKSUMS:
+  FloatingPanel: 3c9d0e30fe350e1613157557769d2ec97f76b96b
+  IoniconsSwift: a9034803dfe59ec48a73c95b812c67afdfa3ed08
+
+PODFILE CHECKSUM: a5d2e8c34bdc10b4131d0f580fb06eecf483802f
+
+COCOAPODS: 1.9.1

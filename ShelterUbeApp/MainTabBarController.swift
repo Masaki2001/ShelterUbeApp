@@ -10,7 +10,7 @@ class MainTabBarController: UITabBarController {
         var viewControllers: [UIViewController] = []
         
         let mapViewController = MapViewController()
-        let mapVCImage = Ionicons.navigate.image(30)
+        let mapVCImage = Ionicons.map.image(30)
         mapViewController.tabBarItem = UITabBarItem(title: "地図表示", image: mapVCImage, tag: 1)
         viewControllers.append(mapViewController)
         

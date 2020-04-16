@@ -4,16 +4,17 @@ import FloatingPanel
 
 class CustomFloatingPanelLayout: FloatingPanelLayout {
     var initialPosition: FloatingPanelPosition {
-        return .tip
+        return .half
     }
     
     var supportedPositions: Set<FloatingPanelPosition> {
-        return [.half, .tip]
+        return [.full, .half, .tip]
     }
     
     func insetFor(position: FloatingPanelPosition) -> CGFloat? {
         switch position {
-            case .half: return 346.0
+            case .full: return 20
+            case .half: return 275.0
             case .tip: return 80.0
             default: return nil
         }

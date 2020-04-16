@@ -4,12 +4,15 @@ import MapKit
 import CoreLocation
 import AudioToolbox
 import FloatingPanel
+import IoniconsSwift
 
 class MapViewController: UIViewController, MKMapViewDelegate {
     
     // MARK: Properties
     
     let mapView: MKMapView = MKMapView()
+    var buttonView: UIView!
+    var moveCurrentButton: UIButton!
     var locationManager: CLLocationManager!
     var floatingPanelController: FloatingPanelController!
     var semiModalController: SemiModalListViewController!
@@ -25,6 +28,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         locationManager.requestWhenInUseAuthorization()
         setupLocationManagerIfNeeded()
         initMapView()
+        setMoveCurrentButton()
         addAnnotationToMapView()
         setFloatingPanel()
     }
@@ -44,6 +48,12 @@ class MapViewController: UIViewController, MKMapViewDelegate {
             name: NSNotification.Name(rawValue: "MoveSelectedCenter"),
             object: nil
         )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(setMapType(notification:)),
+            name: NSNotification.Name(rawValue: "SetMapType"),
+            object: nil
+        )
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -59,6 +69,11 @@ class MapViewController: UIViewController, MKMapViewDelegate {
             name: NSNotification.Name("MoveSelectedCenter"),
             object: nil
         )
+        NotificationCenter.default.removeObserver(
+            self,
+            name: NSNotification.Name("SetMapType"),
+            object: nil
+        )
     }
     
     // MARK: Action
@@ -67,14 +82,6 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         for shelter in Shelter.list {
             addAnnotation(title: shelter.name, latitude: shelter.location.coordinate.latitude, longitude: shelter.location.coordinate.longitude)
         }
-    }
-    
-    @objc func moveSelectedCenter(notification: NSNotification) {
-        let data = notification.userInfo!["shelter"] as! Shelter
-        let span = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
-        let region = MKCoordinateRegion(center: data.location.coordinate, span: span)
-        mapView.setRegion(region, animated: true)
-        floatingPanelController.move(to: .tip, animated: true)
     }
     
     func routeInAppleMapApp(targetName: String, targetLat: CLLocationDegrees, targetLon: CLLocationDegrees) {
@@ -172,14 +179,6 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         view.addSubview(mapView)
     }
     
-    private func setCurrentCenterInMap() {
-        if let userLocation = locationManager.location?.coordinate {
-            let span = MKCoordinateSpan(latitudeDelta: 0.04, longitudeDelta: 0.04)
-            let region = MKCoordinateRegion(center: userLocation, span: span)
-            mapView.setRegion(region, animated: false)
-        }
-    }
-    
     private func setFloatingPanel() {
         floatingPanelController = FloatingPanelController()
         floatingPanelController.delegate = self
@@ -187,6 +186,32 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         floatingPanelController.set(contentViewController: semiModalController)
         floatingPanelController.addPanel(toParent: self, belowView: nil, animated: true)
         view.addSubview(floatingPanelController.view)
+    }
+    
+    private func setMoveCurrentButton() {
+        buttonView = UIView(frame: CGRect(
+            x: view.frame.maxX - 60,
+            y: view.frame.minY + 35,
+            width: 50,
+            height: 50
+            )
+        )
+        buttonView.backgroundColor = .systemBackground
+        buttonView.layer.cornerRadius = 7.0
+        view.addSubview(buttonView)
+        moveCurrentButton = UIButton(type: .system)
+        moveCurrentButton.frame.size = CGSize(
+            width: 45,
+            height: 45
+        )
+        moveCurrentButton.center = buttonView.center
+        let naviImage = Ionicons.iosNavigate.image(45)
+        let naviOutImage = Ionicons.iosNavigateOutline.image(45)
+        moveCurrentButton.adjustsImageWhenHighlighted = true
+        moveCurrentButton.setImage(naviImage, for: .highlighted)
+        moveCurrentButton.setImage(naviOutImage, for: .normal)
+        moveCurrentButton.addTarget(self, action: #selector(setCurrentCenterInMap), for: .touchUpInside)
+        view.addSubview(moveCurrentButton)
     }
     
     private func addAnnotation(title: String, latitude: CLLocationDegrees, longitude: CLLocationDegrees) {
@@ -197,6 +222,16 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         mapView.addAnnotation(annotation)
     }
     
+    // MARK: @objc Action
+    
+    @objc private func setCurrentCenterInMap() {
+        if let userLocation = locationManager.location?.coordinate {
+            let span = MKCoordinateSpan(latitudeDelta: 0.04, longitudeDelta: 0.04)
+            let region = MKCoordinateRegion(center: userLocation, span: span)
+            mapView.setRegion(region, animated: true)
+        }
+    }
+    
     @objc private func updateLocationmanager() {
         let status = CLLocationManager.authorizationStatus()
         if status == .authorizedWhenInUse || status == .authorizedAlways {
@@ -204,6 +239,19 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         } else {
             semiModalController.loseCurrentLocation()
         }
+    }
+    
+    @objc private func moveSelectedCenter(notification: NSNotification) {
+        let data = notification.userInfo!["shelter"] as! Shelter
+        let span = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+        let region = MKCoordinateRegion(center: data.location.coordinate, span: span)
+        mapView.setRegion(region, animated: true)
+        floatingPanelController.move(to: .tip, animated: true)
+    }
+    
+    @objc private func setMapType(notification: NSNotification) {
+        let type = notification.userInfo?["type"] as! MKMapType
+        mapView.mapType = type
     }
     
     // MARK: MKMapViewDelegate

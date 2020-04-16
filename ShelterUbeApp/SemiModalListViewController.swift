@@ -12,26 +12,69 @@ class SemiModalListViewController: UIViewController {
     var tableView: UITableView!
     var warningLabel: UILabel!
     var tabBarHeight: CGFloat!
+    var segumentControl: UISegmentedControl!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = .systemBackground
+        setSegumentControl()
         setLabel()
         fetchShelterAndSetMainView()
     }
     
     // MARK: SetUp
+    
+    private func setSegumentControl() {
+        let params = ["マップ", "交通機関", "航空写真"]
+        segumentControl = UISegmentedControl(items: params)
+        segumentControl.frame.size = CGSize(
+            width: view.frame.width - 40,
+            height: 30
+        )
+        segumentControl.center = CGPoint(
+            x: view.center.x,
+            y: 30 + segumentControl.frame.height / 2
+        )
+        segumentControl.selectedSegmentIndex = 0
+        segumentControl.addTarget(self, action: #selector(changeMapType(segument:)), for: .valueChanged)
+        view.addSubview(segumentControl)
+    }
+    
     private func setLabel() {
         titleLabel = UILabel(frame: CGRect(
             x: 20,
-            y: 20,
-            width: 300,
+            y: segumentControl.frame.maxY + 20,
+            width: view.frame.width - 40,
             height: 40
         ))
         titleLabel.text = "近くの避難所"
-        titleLabel.font = UIFont.systemFont(ofSize: 20, weight: .bold)
+        titleLabel.font = UIFont.boldSystemFont(ofSize: 20)
+        titleLabel.textColor = UIColor.systemGray
         view.addSubview(titleLabel)
+    }
+    
+    private func setWarningLabel() {
+        warningLabel = UILabel()
+        warningLabel.text = "現在地を取得できていません。"
+        warningLabel.sizeToFit()
+        warningLabel.center = CGPoint(
+            x: self.view.frame.width / 2,
+            y: self.view.frame.width / 4 + titleLabel.frame.maxY
+        )
+        view.addSubview(warningLabel)
+    }
+    
+    private func setTableView() {
+        tableView = UITableView(frame: CGRect(
+            x: 0,
+            y: titleLabel.frame.maxY + 10,
+            width: view.frame.width,
+            height: view.frame.height - tabBarHeight - titleLabel.frame.maxY - 10
+        ))
+        tableView.delegate = self
+        tableView.dataSource = self
+        view.addSubview(tableView)
     }
     
     // MARK: Action
@@ -59,7 +102,7 @@ class SemiModalListViewController: UIViewController {
     // MARK: Private Action
     
     private func fetchShelterAndSetMainView() {
-
+        
         if let currentLocation = userLocation {
             shelters = Shelter.sortedList(nearFrom: currentLocation)
             setTableView()
@@ -68,29 +111,24 @@ class SemiModalListViewController: UIViewController {
         }
     }
     
-    private func setWarningLabel() {
-        warningLabel = UILabel()
-        warningLabel.text = "現在地を取得できていません。"
-        warningLabel.sizeToFit()
-        warningLabel.center = CGPoint(
-            x: self.view.frame.width / 2,
-            y: self.view.frame.width / 4 + titleLabel.frame.maxY
-        )
-        view.addSubview(warningLabel)
+    @objc private func changeMapType(segument: UISegmentedControl) {
+        switch segument.selectedSegmentIndex {
+            case 0:
+                NotificationCenter.default.post(
+                    Notification(name: Notification.Name("SetMapType"), object: nil, userInfo: ["type": MKMapType.standard])
+                )
+            case 1:
+                NotificationCenter.default.post(
+                    Notification(name: Notification.Name("SetMapType"), object: nil, userInfo: ["type": MKMapType.mutedStandard])
+                )
+            case 2:
+                NotificationCenter.default.post(
+                    Notification(name: Notification.Name("SetMapType"), object: nil, userInfo: ["type": MKMapType.satellite])
+                )
+            default:
+                fatalError()
+        }
     }
-    
-    private func setTableView() {
-        tableView = UITableView(frame: CGRect(
-            x: 0,
-            y: titleLabel.frame.maxY + 20,
-            width: view.frame.width,
-            height: 350 - tabBarHeight
-        ))
-        tableView.delegate = self
-        tableView.dataSource = self
-        view.addSubview(tableView)
-    }
-    
 }
 
 extension SemiModalListViewController: UITableViewDelegate, UITableViewDataSource {

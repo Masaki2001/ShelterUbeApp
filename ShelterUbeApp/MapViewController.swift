@@ -35,7 +35,6 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        setCurrentCenterInMap()
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(self.updateLocationmanager),

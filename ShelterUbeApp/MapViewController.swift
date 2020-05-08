@@ -4,7 +4,6 @@ import MapKit
 import CoreLocation
 import AudioToolbox
 import FloatingPanel
-import IoniconsSwift
 
 class MapViewController: UIViewController, MKMapViewDelegate {
     
@@ -200,12 +199,14 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         view.addSubview(buttonView)
         moveCurrentButton = UIButton(type: .system)
         moveCurrentButton.frame.size = CGSize(
-            width: 45,
-            height: 45
+            width: 30,
+            height: 30
         )
         moveCurrentButton.center = buttonView.center
-        let naviImage = Ionicons.iosNavigate.image(45)
-        let naviOutImage = Ionicons.iosNavigateOutline.image(45)
+//        let font = UIFont.systemFont(ofSize: 30, weight: .ultraLight)
+        let configuration = UIImage.SymbolConfiguration(weight: .ultraLight)
+        let naviImage = UIImage(systemName: "location", withConfiguration: configuration)
+        let naviOutImage = UIImage(systemName: "location.fill", withConfiguration: configuration)
         moveCurrentButton.adjustsImageWhenHighlighted = true
         moveCurrentButton.setImage(naviImage, for: .highlighted)
         moveCurrentButton.setImage(naviOutImage, for: .normal)

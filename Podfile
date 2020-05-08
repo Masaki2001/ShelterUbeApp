@@ -7,6 +7,4 @@ target 'ShelterUbeApp' do
 
   # Pods for ShelterUbeApp
   pod 'FloatingPanel'
-  pod 'IoniconsSwift', :git => 'http://github.com/tidwall/IoniconsSwift.git', :branch => 'master'
-
 end

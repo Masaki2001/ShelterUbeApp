@@ -1,6 +1,5 @@
 
 import UIKit
-import IoniconsSwift
 
 class ShelterTableViewController: UIViewController, UITableViewDelegate, UINavigationControllerDelegate {
     
@@ -48,7 +47,8 @@ class ShelterTableViewController: UIViewController, UITableViewDelegate, UINavig
             target: self,
             action: #selector(searchButtonAction)
         )
-        let selectBarButtonImage = Ionicons.androidFunnel.image(25)
+        let configuration = UIImage.SymbolConfiguration(weight: .light)
+        let selectBarButtonImage = UIImage(systemName: "line.horizontal.3.decrease.circle", withConfiguration: configuration)
         selectBarButtonItem = UIBarButtonItem(
             image: selectBarButtonImage,
             style: .plain,

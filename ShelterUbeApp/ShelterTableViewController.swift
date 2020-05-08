@@ -1,5 +1,6 @@
 
 import UIKit
+import IoniconsSwift
 
 class ShelterTableViewController: UIViewController, UITableViewDelegate, UINavigationControllerDelegate {
     
@@ -9,7 +10,7 @@ class ShelterTableViewController: UIViewController, UITableViewDelegate, UINavig
     var searchBarButtonItem: UIBarButtonItem!
     var selectBarButtonItem: UIBarButtonItem!
     var searchBar: UISearchBar!
-    var sortCondition: ConditionType = .none
+    var sortConditions: [ConditionType] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,9 +48,10 @@ class ShelterTableViewController: UIViewController, UITableViewDelegate, UINavig
             target: self,
             action: #selector(searchButtonAction)
         )
+        let selectBarButtonImage = Ionicons.androidFunnel.image(25)
         selectBarButtonItem = UIBarButtonItem(
-            title:  selectItemButtonText(),
-            style: .done,
+            image: selectBarButtonImage,
+            style: .plain,
             target: self,
             action: #selector(selectConditionAction)
         )
@@ -98,29 +100,6 @@ class ShelterTableViewController: UIViewController, UITableViewDelegate, UINavig
         })
     }
     
-    private func selectItemButtonText() -> String {
-            switch sortCondition {
-                case .none:
-                    return "条件"
-                case .emergencyEvacuationSite:
-                    return "緊急避難所"
-                case .evacuationSite:
-                    return "避難所"
-                case .caseOfEarthquake:
-                    return "地震"
-                case .caseOfTsunami:
-                    return "津波"
-                case .caseOfSedimentDisaster:
-                    return "土砂災害"
-                case .caseOfHighWavesIn100:
-                    return "高潮 100"
-                case .caseOfHighWavesIn500:
-                    return "高潮 500"
-                case .caseOfFlood:
-                    return "洪水"
-            }
-    }
-    
     // MARK: UITableViewDelegate
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -136,7 +115,7 @@ class ShelterTableViewController: UIViewController, UITableViewDelegate, UINavig
     
     @objc func selectConditionAction() {
         let selectConditionViewController = SelectConditionTableViewController()
-        selectConditionViewController.sortCondition = sortCondition
+        selectConditionViewController.sortConditions = sortConditions
         present(selectConditionViewController, animated: true, completion: nil)
     }
 }
@@ -203,30 +182,7 @@ extension ShelterTableViewController: UISearchBarDelegate {
             list = Shelter.list
         }
         
-            switch sortCondition {
-                case .none:
-                    break
-                case .emergencyEvacuationSite:
-                    list = list.filter { $0.emergencyEvacuationSite }
-                case .evacuationSite:
-                    list = list.filter { $0.evacuationSite }
-                case .caseOfEarthquake:
-                    list = list.filter { $0.caseOfEarthquake }
-                case .caseOfTsunami:
-                    list = list.filter { $0.caseOfTsunami }
-                case .caseOfSedimentDisaster:
-                    list = list.filter { $0.caseOfSedimentDisaster }
-                case .caseOfHighWavesIn100:
-                    list = list.filter { $0.caseOfHighWavesIn100 }
-                case .caseOfHighWavesIn500:
-                    list = list.filter { $0.caseOfHighWavesIn500 }
-                case .caseOfFlood:
-                    list = list.filter { $0.caseOfFlood }
-            }
-
-        shelters = list
+        shelters = Shelter.whereShelter(list: list, conditions: sortConditions)
         tableView.reloadData()
-        
-        selectBarButtonItem.title = selectItemButtonText()
     }
 }

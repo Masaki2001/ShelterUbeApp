@@ -82,6 +82,38 @@ class Shelter {
         })
     }
     
+    static func whereShelter(list: [Shelter], conditions: [ConditionType]) -> [Shelter] {
+        guard !conditions.isEmpty else { return list }
+        var filterdList = list
+        
+        if conditions.contains(.emergencyEvacuationSite) {
+            filterdList = filterdList.filter { $0.emergencyEvacuationSite }
+        }
+        if conditions.contains(.evacuationSite) {
+            filterdList = filterdList.filter { $0.evacuationSite }
+        }
+        if conditions.contains(.caseOfEarthquake) {
+            filterdList = filterdList.filter { $0.caseOfEarthquake }
+        }
+        if conditions.contains(.caseOfTsunami) {
+            filterdList = filterdList.filter { $0.caseOfTsunami }
+        }
+        if conditions.contains(.caseOfSedimentDisaster) {
+            filterdList = filterdList.filter { $0.caseOfSedimentDisaster }
+        }
+        if conditions.contains(.caseOfHighWavesIn100) {
+            filterdList = filterdList.filter { $0.caseOfHighWavesIn100 }
+        }
+        if conditions.contains(.caseOfHighWavesIn500) {
+            filterdList = filterdList.filter { $0.caseOfHighWavesIn500 }
+        }
+        if conditions.contains(.caseOfFlood) {
+            filterdList = filterdList.filter { $0.caseOfFlood }
+        }
+        
+        return filterdList
+    }
+    
     // MARK: Instance Methods
     
     func showDistance() -> String {

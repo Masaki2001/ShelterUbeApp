@@ -5,9 +5,8 @@ class SelectConditionTableViewController: UIViewController {
     
     // MARK: Properties
     var toolbar: UIToolbar!
-    var sortCondition: ConditionType = .none
+    var sortConditions: [ConditionType] = []
     let choiceseList = [
-        ["なし", ConditionType.none],
         ["緊急避難場所", ConditionType.emergencyEvacuationSite],
         ["避難場所", ConditionType.evacuationSite],
         ["地震対応", ConditionType.caseOfEarthquake],
@@ -76,7 +75,7 @@ class SelectConditionTableViewController: UIViewController {
         if let tabBarController = self.presentingViewController as? MainTabBarController,
             let navigationController = tabBarController.selectedViewController as? UINavigationController,
             let presentingViewController = navigationController.topViewController as? ShelterTableViewController {
-            presentingViewController.sortCondition = self.sortCondition
+            presentingViewController.sortConditions = self.sortConditions
             presentingViewController.loadList()
         }
     }
@@ -88,13 +87,17 @@ extension SelectConditionTableViewController: UITableViewDelegate, UITableViewDa
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let cell = tableView.cellForRow(at: indexPath)
-        cell?.accessoryType = .checkmark
-        sortCondition = choiceseList[indexPath.row][1] as! ConditionType
-    }
-    
-    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-        let cell = tableView.cellForRow(at: indexPath)
-        cell?.accessoryType = .none
+        guard let choicedType = choiceseList[indexPath.row][1] as? ConditionType else {
+            return
+        }
+        if !sortConditions.contains(choicedType) {
+            sortConditions.append(choiceseList[indexPath.row][1] as! ConditionType)
+            cell?.accessoryType = .checkmark
+        } else {
+            let index = sortConditions.firstIndex(of: choicedType)!
+            sortConditions.remove(at: index)
+            cell?.accessoryType = .none
+        }
     }
     
     // MARK: UITableViewDataSource
@@ -108,10 +111,12 @@ extension SelectConditionTableViewController: UITableViewDelegate, UITableViewDa
         cell.textLabel?.text = (choiceseList[indexPath.row].first as! String)
         cell.textLabel?.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         cell.selectionStyle = UITableViewCell.SelectionStyle.none
+        guard let cellCondition = choiceseList[indexPath.row][1] as? ConditionType else {
+            fatalError()
+        }
         
-        if choiceseList[indexPath.row][1] as! ConditionType == sortCondition {
+        if sortConditions.contains(cellCondition) {
             cell.accessoryType = .checkmark
-            tableView.selectRow(at: indexPath, animated: true, scrollPosition: .none)
         }
         
         return cell

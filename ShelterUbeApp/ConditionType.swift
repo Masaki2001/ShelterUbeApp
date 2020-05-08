@@ -2,7 +2,6 @@
 import UIKit
 
 enum ConditionType {
-    case none
     case emergencyEvacuationSite
     case evacuationSite
     case caseOfEarthquake

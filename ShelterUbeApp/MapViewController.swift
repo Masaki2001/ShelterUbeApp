@@ -203,7 +203,6 @@ class MapViewController: UIViewController, MKMapViewDelegate {
             height: 30
         )
         moveCurrentButton.center = buttonView.center
-//        let font = UIFont.systemFont(ofSize: 30, weight: .ultraLight)
         let configuration = UIImage.SymbolConfiguration(weight: .ultraLight)
         let naviImage = UIImage(systemName: "location", withConfiguration: configuration)
         let naviOutImage = UIImage(systemName: "location.fill", withConfiguration: configuration)

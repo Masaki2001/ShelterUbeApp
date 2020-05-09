@@ -100,6 +100,13 @@ class ShelterTableViewController: UIViewController, UITableViewDelegate, UINavig
         })
     }
     
+    private func setSelectBarButtonImage() {
+        let configuration = UIImage.SymbolConfiguration(weight: .light)
+        let filterImage = UIImage(systemName: "line.horizontal.3.decrease.circle", withConfiguration: configuration)
+        let filterFillImage = UIImage(systemName: "line.horizontal.3.decrease.circle.fill", withConfiguration: configuration)
+        selectBarButtonItem.image = sortConditions.isEmpty ? filterImage : filterFillImage
+    }
+    
     // MARK: UITableViewDelegate
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -184,5 +191,7 @@ extension ShelterTableViewController: UISearchBarDelegate {
         
         shelters = Shelter.whereShelter(list: list, conditions: sortConditions)
         tableView.reloadData()
+        
+        setSelectBarButtonImage()
     }
 }
